@@ -1,0 +1,129 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String
+  role      String   @default("user")
+  banned    Boolean  @default(false)
+
+  resetToken       String?
+  resetTokenExpiry DateTime?
+
+  businesses  Business[]
+  reviews     Review[]
+  favorites   Favorite[]
+  viewHistory ViewHistory[]
+  reports     Report[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id   String @id @default(cuid())
+  name String @unique
+  slug String @unique
+
+  businesses Business[]
+}
+
+model Business {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  phone       String?
+  website     String?
+
+  addressLine String
+  city        String
+  region      String?
+  postalCode  String?
+  country     String
+
+  latitude    Float
+  longitude   Float
+
+  priceRange   String?
+  openingHours String?
+  verified     Boolean  @default(false)
+
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+
+  ownerId     String?
+  owner       User?    @relation(fields: [ownerId], references: [id])
+
+  reviews           Review[]
+  favorites         Favorite[]
+  viewHistory       ViewHistory[]
+  searchImpressions SearchImpression[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  rating     Int
+  comment    String?
+  createdAt  DateTime @default(now())
+
+  business   Business @relation(fields: [businessId], references: [id])
+  businessId String
+
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  reports    Report[]
+}
+
+model Favorite {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+
+  business   Business @relation(fields: [businessId], references: [id])
+  businessId String
+
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+
+  @@unique([userId, businessId])
+}
+
+model ViewHistory {
+  id         String   @id @default(cuid())
+  viewedAt   DateTime @default(now())
+
+  business   Business @relation(fields: [businessId], references: [id])
+  businessId String
+
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+}
+
+model SearchImpression {
+  id         String   @id @default(cuid())
+  viewedAt   DateTime @default(now())
+
+  business   Business @relation(fields: [businessId], references: [id])
+  businessId String
+}
+
+model Report {
+  id         String   @id @default(cuid())
+  reason     String
+  createdAt  DateTime @default(now())
+  status     String   @default("pending")
+  review     Review   @relation(fields: [reviewId], references: [id])
+  reviewId   String
+  reporter   User     @relation(fields: [reporterId], references: [id])
+  reporterId String
+}

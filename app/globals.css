@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f7f4ec;
+  --foreground: #0f1b2d;
+}
+
+@theme inline {
+  --color-atlas: #0f1b2d;
+  --color-atlas-light: #16273f;
+  --color-brass: #c89b3c;
+  --color-coral: #e85d4e;
+  --color-sage: #7a9e7e;
+  --color-paper: #f7f4ec;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Faint topographic contour texture for the hero */
+.topo-bg {
+  background-color: var(--color-atlas);
+  background-image:
+    repeating-radial-gradient(circle at 85% 15%, rgba(200, 155, 60, 0.09) 0px, rgba(200, 155, 60, 0.09) 1px, transparent 1px, transparent 26px),
+    repeating-radial-gradient(circle at 10% 85%, rgba(122, 158, 126, 0.07) 0px, rgba(122, 158, 126, 0.07) 1px, transparent 1px, transparent 34px);
+}
+
+/* Gentle drop-in for result cards */
+@keyframes pin-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-pin-drop {
+  animation: pin-drop 0.35s ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-pin-drop {
+    animation: none;
+  }
+}
+
+/* Visible keyboard focus everywhere */
+:focus-visible {
+  outline: 2px solid var(--color-brass);
+  outline-offset: 2px;
+}

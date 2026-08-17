@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "FindAI — Discover places, instantly",
+    name: "FindAI - Discover places, instantly",
     short_name: "FindAI",
     description: "Search millions of businesses worldwide by what you actually need.",
     start_url: "/",

@@ -30,7 +30,7 @@ export default async function AdminReportsPage() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Reported Reviews</h1>
         <Link href="/admin" className="text-blue-600 hover:underline">
-          ? Back to Admin Dashboard
+          &larr; Back to Admin Dashboard
         </Link>
       </div>
 
@@ -41,7 +41,7 @@ export default async function AdminReportsPage() {
           {reports.map((report) => (
             <div key={report.id} className="border rounded-lg p-4">
               <p className="text-sm text-gray-500 mb-2">
-                On <strong>{report.review.business.name}</strong> · reported by{" "}
+                On <strong>{report.review.business.name}</strong> &middot; reported by{" "}
                 {report.reporter.name || report.reporter.email}
               </p>
               <p className="text-sm font-medium text-red-700 mb-2">
@@ -49,7 +49,7 @@ export default async function AdminReportsPage() {
               </p>
               <div className="bg-gray-50 rounded p-3 mb-3">
                 <p className="text-sm text-gray-700">
-                  {"?".repeat(report.review.rating)} —{" "}
+                  {"*".repeat(report.review.rating)} &middot;{" "}
                   {report.review.user.name || report.review.user.email}
                 </p>
                 {report.review.comment && (

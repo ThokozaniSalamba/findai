@@ -1,7 +1,6 @@
 import { prisma } from "./lib/prisma";
 import SearchHome from "./components/SearchHome";
-import UserMenu from "./components/UserMenu";
-import MessagesIcon from "./components/MessagesIcon";
+import Header from "./components/Header";
 import { auth } from "@/auth";
 import Link from "next/link";
 
@@ -52,39 +51,10 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen bg-paper">
-      <header className="sticky top-0 z-40 bg-atlas text-paper border-b border-atlas-light px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="font-display text-2xl font-semibold text-paper">
-          Find<span className="text-brass">AI</span>
-        </Link>
-
-        <nav className="flex items-center gap-4 text-sm">
-          <Link href="/jobs" className="text-paper/80 hover:text-paper">
-            Browse Jobs
-          </Link>
-          <Link href="/post-job" className="text-paper/80 hover:text-paper">
-            Post a Job
-          </Link>
-
-          {session?.user ? (
-            <>
-              <MessagesIcon />
-              <UserMenu displayName={session.user.name || session.user.email || "there"} />
-            </>
-          ) : (
-            <>
-              <Link href="/login" className="text-paper/80 hover:text-paper">
-                Sign In
-              </Link>
-              <Link
-                href="/register"
-                className="rounded-full bg-brass px-4 py-1.5 font-medium text-atlas hover:bg-brass/90 transition-colors"
-              >
-                Register
-              </Link>
-            </>
-          )}
-        </nav>
-      </header>
+      <Header
+        isLoggedIn={Boolean(session?.user)}
+        displayName={session?.user?.name || session?.user?.email || "there"}
+      />
 
       <section className="topo-bg relative overflow-hidden px-6 pt-16 pb-20 text-center">
         <p className="font-mono text-xs uppercase tracking-[0.2em] text-brass mb-4">

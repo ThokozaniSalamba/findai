@@ -14,16 +14,15 @@ model User {
   password  String
   role      String   @default("user")
   banned    Boolean  @default(false)
-
   resetToken       String?
   resetTokenExpiry DateTime?
-
   businesses  Business[]
   reviews     Review[]
   favorites   Favorite[]
   viewHistory ViewHistory[]
   reports     Report[]
-
+  jobRequests JobRequest[]
+  messages    Message[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -32,8 +31,8 @@ model Category {
   id   String @id @default(cuid())
   name String @unique
   slug String @unique
-
-  businesses Business[]
+  businesses  Business[]
+  jobRequests JobRequest[]
 }
 
 model Business {
@@ -42,31 +41,30 @@ model Business {
   description String?
   phone       String?
   website     String?
-
   addressLine String
   city        String
   region      String?
   postalCode  String?
   country     String
-
   latitude    Float
   longitude   Float
-
   priceRange   String?
   openingHours String?
   verified     Boolean  @default(false)
-
+  isIndividual Boolean  @default(false)
+  skills       String?
+  availability String   @default("unknown")
   categoryId  String
   category    Category @relation(fields: [categoryId], references: [id])
-
   ownerId     String?
   owner       User?    @relation(fields: [ownerId], references: [id])
-
   reviews           Review[]
   favorites         Favorite[]
   viewHistory       ViewHistory[]
   searchImpressions SearchImpression[]
-
+  quotes            Quote[]
+  messages          Message[]
+  bookings          Booking[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -76,10 +74,8 @@ model Review {
   rating     Int
   comment    String?
   createdAt  DateTime @default(now())
-
   business   Business @relation(fields: [businessId], references: [id])
   businessId String
-
   user       User     @relation(fields: [userId], references: [id])
   userId     String
   reports    Report[]
@@ -88,23 +84,18 @@ model Review {
 model Favorite {
   id         String   @id @default(cuid())
   createdAt  DateTime @default(now())
-
   business   Business @relation(fields: [businessId], references: [id])
   businessId String
-
   user       User     @relation(fields: [userId], references: [id])
   userId     String
-
   @@unique([userId, businessId])
 }
 
 model ViewHistory {
   id         String   @id @default(cuid())
   viewedAt   DateTime @default(now())
-
   business   Business @relation(fields: [businessId], references: [id])
   businessId String
-
   user       User     @relation(fields: [userId], references: [id])
   userId     String
 }
@@ -112,7 +103,6 @@ model ViewHistory {
 model SearchImpression {
   id         String   @id @default(cuid())
   viewedAt   DateTime @default(now())
-
   business   Business @relation(fields: [businessId], references: [id])
   businessId String
 }
@@ -126,4 +116,76 @@ model Report {
   reviewId   String
   reporter   User     @relation(fields: [reporterId], references: [id])
   reporterId String
+}
+
+model JobRequest {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  budget      Float?
+  status      String   @default("open")
+  addressLine String?
+  city        String
+  region      String?
+  country     String
+  latitude    Float?
+  longitude   Float?
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+  customerId  String
+  customer    User     @relation(fields: [customerId], references: [id])
+  quotes      Quote[]
+  messages    Message[]
+  booking     Booking?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Quote {
+  id           String     @id @default(cuid())
+  price        Float
+  message      String?
+  status       String     @default("pending")
+  jobRequestId String
+  jobRequest   JobRequest @relation(fields: [jobRequestId], references: [id])
+  businessId   String
+  business     Business   @relation(fields: [businessId], references: [id])
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  @@unique([jobRequestId, businessId])
+}
+
+model Message {
+  id           String     @id @default(cuid())
+  content      String
+  jobRequestId String
+  jobRequest   JobRequest @relation(fields: [jobRequestId], references: [id])
+  businessId   String
+  business     Business   @relation(fields: [businessId], references: [id])
+  senderId     String
+  sender       User       @relation(fields: [senderId], references: [id])
+  createdAt    DateTime   @default(now())
+}
+
+model MessageRead {
+  id           String   @id @default(cuid())
+  jobRequestId String
+  businessId   String
+  userId       String
+  lastReadAt   DateTime @default(now())
+  @@unique([jobRequestId, businessId, userId])
+}
+
+model Booking {
+  id           String     @id @default(cuid())
+  proposedDate DateTime
+  proposedBy   String     @default("customer")
+  status       String     @default("proposed")
+  notes        String?
+  jobRequestId String     @unique
+  jobRequest   JobRequest @relation(fields: [jobRequestId], references: [id])
+  businessId   String
+  business     Business   @relation(fields: [businessId], references: [id])
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 }

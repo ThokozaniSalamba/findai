@@ -40,6 +40,9 @@ export async function PATCH(
       country: body.country,
       priceRange: body.priceRange || null,
       openingHours: body.openingHours || null,
+      isIndividual: Boolean(body.isIndividual),
+      skills: body.skills || null,
+      availability: body.availability || "unknown",
     },
   });
 

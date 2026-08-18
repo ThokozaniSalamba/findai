@@ -29,6 +29,8 @@ type Business = {
   distanceKm?: number;
   priceRange?: string | null;
   verified?: boolean;
+  isIndividual?: boolean;
+  availability?: string;
   category: { name: string };
 };
 
@@ -55,6 +57,13 @@ const PRICE_OPTIONS = [
   { label: "$$ Moderate", value: "$$" },
   { label: "$$$ Premium", value: "$$$" },
 ];
+
+const AVAILABILITY_LABELS: Record<string, { label: string; className: string }> = {
+  available_now: { label: "Available now", className: "bg-sage/15 text-sage" },
+  busy: { label: "Busy", className: "bg-amber-100 text-amber-700" },
+  tomorrow: { label: "Available tomorrow", className: "bg-blue-100 text-blue-700" },
+  holiday: { label: "On holiday", className: "bg-atlas/10 text-atlas/50" },
+};
 
 const CHEAP_WORDS = ["cheap", "budget", "affordable", "inexpensive", "low cost", "low-cost"];
 const MID_WORDS = ["moderate", "mid-range", "mid range", "reasonable", "average price"];
@@ -377,40 +386,55 @@ export default function SearchHome({ categories, initialBusinesses, trendingBusi
         <p className="text-sm text-atlas/50 font-mono mb-16">Loading businesses...</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-16">
-          {businesses.map((b, i) => (
-            <Link
-              key={b.id}
-              href={`/business/${b.id}`}
-              style={{ animationDelay: `${i * 40}ms` }}
-              className="animate-pin-drop group rounded-xl border border-atlas/10 bg-paper p-5 hover:border-brass hover:shadow-lg hover:shadow-atlas/5 transition-all"
-            >
-              <div className="flex items-start justify-between gap-2">
-                <h3 className="font-display text-lg font-semibold text-atlas group-hover:text-coral transition-colors">
-                  {b.name}
-                </h3>
-                <div className="flex items-center gap-2 shrink-0">
-                  {b.verified && (
-                    <span
-                      title="Verified business"
-                      className="inline-flex items-center gap-1 rounded-full bg-sage/15 text-sage text-xs font-semibold px-2 py-0.5"
-                    >
-                      ✓ Verified
+          {businesses.map((b, i) => {
+            const availabilityInfo = b.availability ? AVAILABILITY_LABELS[b.availability] : undefined;
+            return (
+              <Link
+                key={b.id}
+                href={`/business/${b.id}`}
+                style={{ animationDelay: `${i * 40}ms` }}
+                className="animate-pin-drop group rounded-xl border border-atlas/10 bg-paper p-5 hover:border-brass hover:shadow-lg hover:shadow-atlas/5 transition-all"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <h3 className="font-display text-lg font-semibold text-atlas group-hover:text-coral transition-colors">
+                    {b.name}
+                  </h3>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {b.verified && (
+                      <span
+                        title="Verified business"
+                        className="inline-flex items-center gap-1 rounded-full bg-sage/15 text-sage text-xs font-semibold px-2 py-0.5"
+                      >
+                        ✓ Verified
+                      </span>
+                    )}
+                    {b.priceRange && (
+                      <span className="font-mono text-xs text-brass">{b.priceRange}</span>
+                    )}
+                  </div>
+                </div>
+                <p className="text-sm text-atlas/60 mt-1">{b.category.name}</p>
+                <p className="text-sm text-atlas/60">{b.city}</p>
+                <div className="flex items-center gap-2 mt-3 flex-wrap">
+                  {b.isIndividual && (
+                    <span className="text-xs font-medium text-atlas/50 bg-atlas/5 rounded-full px-2 py-0.5">
+                      Individual
                     </span>
                   )}
-                  {b.priceRange && (
-                    <span className="font-mono text-xs text-brass">{b.priceRange}</span>
+                  {availabilityInfo && (
+                    <span className={`text-xs font-semibold rounded-full px-2 py-0.5 ${availabilityInfo.className}`}>
+                      {availabilityInfo.label}
+                    </span>
                   )}
                 </div>
-              </div>
-              <p className="text-sm text-atlas/60 mt-1">{b.category.name}</p>
-              <p className="text-sm text-atlas/60">{b.city}</p>
-              {b.distanceKm !== undefined && (
-                <p className="font-mono text-xs text-sage mt-3">
-                  {b.distanceKm.toFixed(1)} km away
-                </p>
-              )}
-            </Link>
-          ))}
+                {b.distanceKm !== undefined && (
+                  <p className="font-mono text-xs text-sage mt-3">
+                    {b.distanceKm.toFixed(1)} km away
+                  </p>
+                )}
+              </Link>
+            );
+          })}
           {businesses.length === 0 && (
             <p className="text-sm text-atlas/50 col-span-full text-center py-10">
               No places match yet — try widening your search.
@@ -429,17 +453,25 @@ export default function SearchHome({ categories, initialBusinesses, trendingBusi
             Trending near you
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {trendingBusinesses.map((b) => (
-              <Link
-                key={b.id}
-                href={`/business/${b.id}`}
-                className="rounded-xl border border-atlas/10 bg-atlas text-paper p-5 hover:border-brass transition-colors"
-              >
-                <h3 className="font-display text-lg font-semibold">{b.name}</h3>
-                <p className="text-sm text-paper/60 mt-1">{b.category.name}</p>
-                <p className="text-sm text-paper/60">{b.city}</p>
-              </Link>
-            ))}
+            {trendingBusinesses.map((b) => {
+              const availabilityInfo = b.availability ? AVAILABILITY_LABELS[b.availability] : undefined;
+              return (
+                <Link
+                  key={b.id}
+                  href={`/business/${b.id}`}
+                  className="rounded-xl border border-atlas/10 bg-atlas text-paper p-5 hover:border-brass transition-colors"
+                >
+                  <h3 className="font-display text-lg font-semibold">{b.name}</h3>
+                  <p className="text-sm text-paper/60 mt-1">{b.category.name}</p>
+                  <p className="text-sm text-paper/60">{b.city}</p>
+                  {availabilityInfo && (
+                    <span className={`inline-block text-xs font-semibold rounded-full px-2 py-0.5 mt-3 ${availabilityInfo.className}`}>
+                      {availabilityInfo.label}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
           </div>
         </div>
       )}

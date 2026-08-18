@@ -12,6 +12,13 @@ type Props = {
   params: Promise<{ id: string }>;
 };
 
+const availabilityLabels: Record<string, { label: string; className: string }> = {
+  available_now: { label: "Available now", className: "bg-green-100 text-green-700" },
+  busy: { label: "Busy", className: "bg-amber-100 text-amber-700" },
+  tomorrow: { label: "Available tomorrow", className: "bg-blue-100 text-blue-700" },
+  holiday: { label: "On holiday", className: "bg-gray-200 text-gray-600" },
+};
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const business = await prisma.business.findUnique({
@@ -84,6 +91,10 @@ export default async function BusinessPage({ params }: Props) {
   const isLoggedIn = Boolean(session?.user);
   const isUnclaimed = !business.ownerId;
   const isOwner = business.ownerId === session?.user?.id;
+  const availabilityInfo = availabilityLabels[business.availability];
+  const skillsList = business.skills
+    ? business.skills.split(",").map((s) => s.trim()).filter(Boolean)
+    : [];
 
   return (
     <main className="min-h-screen bg-white">
@@ -96,11 +107,18 @@ export default async function BusinessPage({ params }: Props) {
       <div className="max-w-3xl mx-auto px-6 py-10">
         <div className="bg-gray-100 h-56 rounded-xl mb-6" />
 
-        <p className="text-sm text-blue-600 font-medium mb-1">
-          {business.category.name}
-        </p>
+        <div className="flex items-center justify-between mb-1">
+          <p className="text-sm text-blue-600 font-medium">
+            {business.category.name}
+          </p>
+          {business.isIndividual && (
+            <span className="text-xs font-medium text-gray-500 bg-gray-100 rounded-full px-3 py-1">
+              Individual professional
+            </span>
+          )}
+        </div>
 
-        <div className="flex items-center gap-3 mb-3">
+        <div className="flex flex-wrap items-center gap-3 mb-3">
           <h1 className="text-3xl font-bold text-gray-900">{business.name}</h1>
           {business.verified && (
             <span
@@ -110,10 +128,33 @@ export default async function BusinessPage({ params }: Props) {
               ✓ Verified
             </span>
           )}
+          {availabilityInfo && (
+            <span
+              className={`inline-flex items-center gap-1 rounded-full text-xs font-semibold px-3 py-1 ${availabilityInfo.className}`}
+            >
+              {availabilityInfo.label}
+            </span>
+          )}
         </div>
 
         {business.description && (
           <p className="text-gray-600 mb-6">{business.description}</p>
+        )}
+
+        {skillsList.length > 0 && (
+          <div className="mb-6">
+            <h2 className="text-sm font-semibold text-gray-900 mb-2">Skills</h2>
+            <div className="flex flex-wrap gap-2">
+              {skillsList.map((skill) => (
+                <span
+                  key={skill}
+                  className="text-xs font-medium text-gray-700 bg-gray-100 rounded-full px-3 py-1"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 border-t border-gray-200 pt-6">

@@ -16,6 +16,9 @@ type Business = {
   country: string;
   priceRange: string | null;
   openingHours: string | null;
+  isIndividual: boolean;
+  skills: string | null;
+  availability: string;
 };
 
 type Props = {
@@ -57,7 +60,10 @@ export default function EditBusinessForm({ business }: Props) {
     postalCode: business.postalCode ?? "",
     country: business.country,
     priceRange: business.priceRange ?? "",
+    skills: business.skills ?? "",
+    availability: business.availability ?? "unknown",
   });
+  const [isIndividual, setIsIndividual] = useState(business.isIndividual);
   const [hours, setHours] = useState<Hours>(parseHours(business.openingHours));
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -80,6 +86,7 @@ export default function EditBusinessForm({ business }: Props) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         ...form,
+        isIndividual,
         openingHours: JSON.stringify(hours),
       }),
     });
@@ -105,6 +112,39 @@ export default function EditBusinessForm({ business }: Props) {
           onChange={(e) => handleChange("name", e.target.value)}
           className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm mt-1"
         />
+      </div>
+
+      <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+        <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
+          <input
+            type="checkbox"
+            checked={isIndividual}
+            onChange={(e) => setIsIndividual(e.target.checked)}
+          />
+          This is an individual / freelancer profile (not a registered company)
+        </label>
+
+        <label className="text-sm font-medium text-gray-700">Skills (comma separated)</label>
+        <input
+          type="text"
+          value={form.skills}
+          onChange={(e) => handleChange("skills", e.target.value)}
+          placeholder="e.g. pipe repair, geyser installation, drain unblocking"
+          className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm mt-1"
+        />
+
+        <label className="text-sm font-medium text-gray-700 block mt-3">Availability</label>
+        <select
+          value={form.availability}
+          onChange={(e) => handleChange("availability", e.target.value)}
+          className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm mt-1"
+        >
+          <option value="unknown">Not specified</option>
+          <option value="available_now">Available now</option>
+          <option value="busy">Busy</option>
+          <option value="tomorrow">Available tomorrow</option>
+          <option value="holiday">On holiday</option>
+        </select>
       </div>
 
       <div>
